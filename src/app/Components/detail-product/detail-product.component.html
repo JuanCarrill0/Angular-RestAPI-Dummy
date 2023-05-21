@@ -1,0 +1,22 @@
+<div class="productDetails">
+  <div class="productDetailsContent">
+    <h2 class="productTitle">{{ product?.title }}</h2>
+    <p class="productDescription">{{ product?.description }}</p>
+    <p class="productPrice">Precio: {{ product?.price }}</p>
+    <p class="productRating">Rating: {{ product?.rating }}</p>
+    <p class="productStock">Stock: {{ product?.stock }}</p>
+    <div class="productImages">
+      <img *ngIf="currentImageIndex >= 0 && currentImageIndex < product?.images.length" [src]="product?.images[currentImageIndex]" alt="Imagen del producto">
+    </div>
+    <div class="imageNavigation">
+      <button class="prevButton" (click)="navigateImages('prev')">&lt;</button>
+      <button class="nextButton" (click)="navigateImages('next')">&gt;</button>
+    </div>
+    <button class="closeButton" (click)="closeProductDetails()">Cerrar</button>
+    <div class="addToCartSection">
+      <label for="quantityInput">Cantidad:</label>
+      <input type="number" id="quantityInput" [(ngModel)]="quantity" min="1" max="{{ product?.stock }}">
+      <button class="addToCartButton" (click)="addToCart()">Añadir al carrito</button>
+    </div>
+  </div>
+</div>

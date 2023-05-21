@@ -1,0 +1,22 @@
+<h2 class="title">Lista de productos</h2>
+<button (click)="openCart()">Ir al carrito</button>
+
+<div class="searchBox">
+  <input type="text" [(ngModel)]="searchText" placeholder="Buscar productos" (input)="loadProducts()">
+</div>
+
+
+<div class="productBox">
+  <div *ngFor="let product of products" class="productItem">
+    <h3 [ngStyle]="{ color: getColorForStock(product.stock) }" class="productTitle">{{ product.title }}</h3>
+    <p class="productDescription">{{ product.description }}</p>
+    <p class="productPrice">Precio: {{ product.price }}</p>
+    <p class="productStock">Stock: {{ product.stock }}</p>
+    <button (click)="openProductDetails(product)" class="viewDetailsButton">Ver detalles</button>
+  </div>
+</div>
+
+<div class="pagination">
+  <button *ngFor="let page of totalPages" (click)="goToPage(page)" [ngClass]="{ active: page === currentPage }">{{ page }}</button>
+</div>
+
