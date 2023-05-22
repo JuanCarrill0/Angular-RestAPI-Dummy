@@ -15,7 +15,7 @@ export class ProductService {
     if (existingItem) {
       existingItem.quantity = quantity;
     } else {
-      this.cartItems.push({ product: product, quantity: 1 });
+      this.cartItems.push({ product: product, quantity: quantity });
     }
   }
 

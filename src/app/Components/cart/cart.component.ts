@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { ProductService } from 'src/app/Services/product.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-cart',
@@ -31,6 +32,11 @@ export class CartComponent {
     const total = this.getTotal();
     this.cartItems = [];
     console.log('Total de la compra:', total);
+    Swal.fire({
+      icon: 'success',
+      title: 'Compra Completada.',
+      text: `El precio total fue de = ${total} $!`,
+    });
   }
 }
 

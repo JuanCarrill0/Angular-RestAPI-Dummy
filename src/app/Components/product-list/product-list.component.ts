@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { DetailProductComponent } from '../detail-product/detail-product.component';
 import { CartComponent } from '../cart/cart.component';
-import { Router } from '@angular/router';
+import { HttpRequestService } from 'src/app/Services/http-request.service';
 import { forkJoin } from 'rxjs';
+
 
 @Component({
   selector: 'product-list',
@@ -18,36 +18,64 @@ export class ProductListComponent implements OnInit {
   searchText: string = '';
 
   selectedProduct: any;
+  itemsPerPage: number = 20;
+  totalProducts: number = 100;
 
-  constructor(private http: HttpClient, private dialog: MatDialog, private router: Router) { }
-
+  constructor(
+    private httpRequestService: HttpRequestService,
+    private dialog: MatDialog
+  ) { }
 
   ngOnInit() {
+    this.getTotalProducts();
     this.loadProducts();
   }
 
-  loadProducts() {
-    const startProductId = (this.currentPage - 1) * 20 + 1;
-    const endProductId = this.currentPage * 20;
-    
-    this.products = []; // Limpiar el arreglo antes de cargar nuevos productos
-    this.totalPages = []; // Limpiar el arreglo de páginas
-
-    const requests = [];
-
-    for (let i = startProductId; i <= endProductId; i++) {
-      const url = `https://dummyjson.com/products/${i}`;
-      requests.push(this.http.get<any>(url));
-    }
-
-    forkJoin(requests).subscribe((responses) => {
-      this.products = responses;
+  getTotalProducts() {
+    this.httpRequestService.getTotalProducts().subscribe((total) => {
+      this.totalProducts = total;
+      this.calculateTotalPages();
     });
+  }
 
-    // Calcular el número total de páginas disponibles
-    const totalProducts = 100; // Total de productos en la API (ejemplo: 100 productos)
-    const itemsPerPage = 20; // Número de productos por página (ejemplo: 20 productos por página)
-    const totalPages = Math.ceil(totalProducts / itemsPerPage);
+  loadProducts() {
+    const startProductId = (this.currentPage - 1) * this.itemsPerPage + 1;
+    const endProductId = this.currentPage * this.itemsPerPage;
+  
+    this.products = []; // Clear the array before loading new products
+    this.totalPages = []; // Clear the pages array
+  
+    if (this.searchText !== "") {
+      this.httpRequestService.searchProducts(this.searchText).subscribe((response) => {
+        this.products = response.products;
+  
+        // Actualizar la paginación con base en los productos encontrados
+        const totalProducts = response.total;
+        const totalPages = Math.ceil(totalProducts / this.itemsPerPage);
+  
+        for (let i = 1; i <= totalPages; i++) {
+          this.totalPages.push(i);
+        }
+      });
+    } else {
+      this.httpRequestService.getAllProducts().subscribe((response) => {
+        this.products = response;
+  
+        // Calcular el número total de páginas disponibles
+        const totalProducts = this.totalProducts; // Utilizamos el valor previamente obtenido
+        const totalPages = Math.ceil(totalProducts / this.itemsPerPage);
+  
+        for (let i = 1; i <= totalPages; i++) {
+          this.totalPages.push(i);
+        }
+      });
+    }
+  }
+  
+  calculateTotalPages() {
+    this.totalPages = [];
+
+    const totalPages = Math.ceil(this.products.length / this.itemsPerPage);
 
     for (let i = 1; i <= totalPages; i++) {
       this.totalPages.push(i);
@@ -88,9 +116,10 @@ export class ProductListComponent implements OnInit {
     const dialogRef = this.dialog.open(CartComponent, {
       width: '80%' // Ajusta el ancho según tus necesidades
     });
-  
+
     dialogRef.afterClosed().subscribe(() => {
       // Realiza alguna acción después de cerrar el componente del carrito
     });
   }
 }
+

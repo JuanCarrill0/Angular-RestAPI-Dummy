@@ -1,6 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ProductService } from 'src/app/Services/product.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-detail-product',
@@ -32,6 +33,10 @@ export class DetailProductComponent {
   addToCart() {
     this.productService.addToCart(this.product, this.quantity); // Pasar la cantidad al método addToCart()
     this.dialogRef.close(); // Cierra el componente de detalle
+    Swal.fire({
+      icon: 'success',
+      title: 'Añadido al carrito.',
+    });
   }
 }
 
